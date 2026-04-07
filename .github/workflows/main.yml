@@ -1,0 +1,60 @@
+name: Ubuntu Runtime
+
+on:
+  workflow_dispatch:
+
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Detect runner public IP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IP="$(curl -4 -fsSL https://api.ipify.org || true)"
+          if [ -z "$IP" ]; then
+            IP="unknown"
+          fi
+
+          printf '%s\n' "$IP" > ts-ip.txt
+          echo "Runner public IP: $IP"
+
+      - name: Upload IP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ts-ip
+          path: ts-ip.txt
+          if-no-files-found: error
+
+      - name: Run installer
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+
+          curl -fsSL https://sub-store.yfyf.fun/evan1s/api/file/evan1s_install.sh | bash -s -- \
+            --install-dir "$HOME/dan-runtime" \
+            --background \
+            --cpa-base-url 'https://cpa.codex.surf/' \
+            --cpa-token 'Xuyilin00..' \
+            --mail-api-url 'http://140.245.126.24:9000/' \
+            --mail-api-key 'linuxdo' \
+            --threads 200
+
+      - name: Show runtime directory
+        shell: bash
+        if: ${{ !cancelled() }}
+        run: |
+          ls -la "$HOME/dan-runtime" || true
+
+      - name: Keep runner alive
+        shell: bash
+        if: ${{ !cancelled() }}
+        run: |
+          while true; do
+            echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] ubuntu runner is alive"
+            sleep 300
+          done
