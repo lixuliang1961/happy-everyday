@@ -46,15 +46,27 @@ jobs:
 
       - name: Show runtime directory
         shell: bash
-        if: ${{ !cancelled() }}
+        if: ${{ success() || failure() }}
         run: |
           ls -la "$HOME/dan-runtime" || true
+          if [ -f "$HOME/dan-runtime/dan-web.log" ]; then
+            echo "===== dan-web.log (latest 50 lines) ====="
+            tail -n 50 "$HOME/dan-runtime/dan-web.log" || true
+          else
+            echo "dan-web.log not found yet"
+          fi
 
       - name: Keep runner alive
         shell: bash
-        if: ${{ !cancelled() }}
+        if: ${{ success() || failure() }}
         run: |
           while true; do
             echo "[$(date -u '+%Y-%m-%dT%H:%M:%SZ')] ubuntu runner is alive"
+            if [ -f "$HOME/dan-runtime/dan-web.log" ]; then
+              echo "===== dan-web.log (latest 30 lines) ====="
+              tail -n 30 "$HOME/dan-runtime/dan-web.log" || true
+            else
+              echo "dan-web.log not found yet"
+            fi
             sleep 300
           done
