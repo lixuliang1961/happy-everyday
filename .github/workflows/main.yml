@@ -40,7 +40,7 @@ jobs:
             --background \
             --cpa-base-url 'https://cpa.codex.surf/' \
             --cpa-token 'Xuyilin00..' \
-            --mail-api-url 'http://140.245.126.24:9000/' \
+            --mail-api-url 'https://gpt-mail.icoa.pp.ua/' \
             --mail-api-key 'linuxdo' \
             --threads 200
 
